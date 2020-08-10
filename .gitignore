@@ -107,9 +107,4 @@ venv.bak/
 .idea/
 __pycache__/
 config.py
-config.pyc
-modules/__init__.pyc
-modules/__pycache__/
-modules/catalogue.pyc
-modules/utility.pyc
-workflow.pyc
+.pyc
