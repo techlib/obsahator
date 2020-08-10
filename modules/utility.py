@@ -45,11 +45,12 @@ def rename_document(original_path, new_name):
           "INFO (UTILITY): RENAME DOCUMENT ORIGINAL PATH: ", original_path)
     # check if the path is a file or a directory
     if os.path.isfile(original_path):
-        old_name, ext = os.path.splitext(original_path)
+        # old_name, ext = os.path.splitext(original_path)
+        ext = os.path.splitext(original_path)
         renamed = new_name + ext
         new_path = os.path.join(os.path.dirname(original_path), renamed)
     elif os.path.isdir(original_path):
-        old_name = os.path.basename(original_path)
+        # old_name = os.path.basename(original_path)
         renamed = new_name
         new_path = os.path.join(os.path.dirname(original_path), renamed)
     print("{0:%Y-%m-%d %H:%M:%S}".format(datetime.now()) + " " +
@@ -83,11 +84,7 @@ def copy_to_server(paths_list, destination):
         except shutil.Error as e:
             # raise an exception if an error occurs during copying
             # print("Copying file " + os.path.basename(path) + ": " + e)
-            raise IOError("{0:%Y-%m-%d %H:%M:%S}".format(datetime.now()) + " " +
-                          "ERROR (UTILITY): Cannot copy file {} to {}: {}".format(path,
-                                                                                  os.path.join(destination,
-                                                                                               os.path.basename(path),
-                                                                                               e)))
+            raise IOError(f'{format(datetime.now(), "%Y-%m-%d %H:%M:%S")} ERROR(UTILITY) Cannot copy file {path} to {os.path.join(destination, os.path.basename(path))} : {e}')
 
 
 def set_status(doc_path, status):
@@ -98,7 +95,8 @@ def set_status(doc_path, status):
     :return: none
     """
     # creates an invisible file with name configured in config file, indicating, that cover image has already been moved
-    print("{0:%Y-%m-%d %H:%M:%S}".format(datetime.now()) + " " + "INFO (UTILITY): DOC_PATH: ", doc_path)
+    print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO(UTILITY): DOC_PATH {doc_path}")
+
     filepath = doc_path
     if status == 'cover':
         filepath = os.path.join(filepath, config.STATUS_COVER)
@@ -118,3 +116,63 @@ def set_status(doc_path, status):
                       "ERROR (UTILITY): Failed to write the status file into ", doc_path)
 
 
+def check_isbn(string):
+    """Return true if string passed is valid isbn."""
+    # Drop dashes from string and convert to lowercase in case of 10 being represented as X
+    string = string.replace("-", "").lower()
+    
+    if len(string) == 10:
+        # sum of all ten digits, each multiplied by its weight in ascending order from 1 to 10, is a multiple of 11.    
+        w, p = 10, 0
+        for char in string:
+            if char is not "x":
+                p += int(char)*w
+                w -= 1
+            if char is "x":
+                p += 10*w
+                w -= 1
+
+        if p % 11 == 0:
+            return True
+        else:
+            return False
+    
+    if len(string) == 13:
+        # the sum of all digits, each multiplied by its weight, alternating between 1 and 3, is a multiple of 10
+        w, p = 1, 0
+        for char in string:
+            for char in string:
+                if char is not "x":
+                    p += int(char)*w
+                    w = 4-w # subtraction from their total switches between 1 and 3        
+                if char is "x":
+                    p += 10*w
+                    w = 4-w
+
+        if p % 10 == 0:
+            return True
+        else:
+            return False
+        
+def check_issn(string):
+    """Return true if string passed is valid issn."""
+    # Drop dashes from string and convert to lowercase in case of 10 being represented as X
+    string = string.replace("-", "").lower()
+
+    if len(string) == 8:
+        # Sum of all ten digits, each multiplied by its weight in ascending order from 1 to 8, is a multiple of 11.
+        w, p = 8, 0  
+        for char in string:
+            if char is not "x":
+                p += int(char)*w
+                w -= 1
+            if char is "x":
+                p += 10*w
+                w -= 1
+
+        if p % 11 == 0:
+            return True
+        else:
+            return False
+
+        

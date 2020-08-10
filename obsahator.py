@@ -12,25 +12,14 @@ import config
 import os
 import re
 from datetime import datetime
+from modules import utility
 
 batch_dict = {}
 
 # scan input folder for new documents
 docs = [os.path.join(config.INPUT_DIR, d) for d in os.listdir(config.INPUT_DIR) if os.path.isdir(os.path.join(
-    config.INPUT_DIR, d)) and re.match("^\d{8}", d)]
+    config.INPUT_DIR, d)) and re.match(r'^\d{8}', d)]
 
-# JD. faulty folders capturing see redmine #4311
-
-bad_dir_syntax = list()
-
-for d in docs:
-    bad_syntax_pattern = re.compile("/mnt/moon/DIGITALIZACE/OBSAHY/dig/\d\d\d\d\d\d\d\d_ABA013-\d\d\d\d\d\d\d\d\d")
-    if bad_syntax_pattern.match(d) is not None:
-        bad_dir_syntax.append(d)
-
-for d in bad_dir_syntax:
-    docs.remove(d)
-    os.system("mv " + d + " /mnt/moon/DIGITALIZACE/OBSAHY/BAD_SYNTAX")
 
 
 # check if there is any invisible file indication status of the document in each folder
@@ -38,30 +27,34 @@ for doc_path in docs:
 
     doc_dict = {}
 
-    doc_dict.update({'name':    os.path.basename(doc_path),
+    doc_dict.update({'id':      os.path.basename(doc_path)[9:],
+                     'name':    os.path.basename(doc_path),
                      'path':    doc_path,
                      'toc':     [os.path.join(doc_path, f) for f in os.listdir(doc_path) if os.path.isfile(os.path.join(
-                                doc_path, f)) and re.match("^toc-", f)],
+                                doc_path, f)) and re.match(r'^toc-', f)],
                      'cover':   [os.path.join(doc_path, f) for f in os.listdir(doc_path) if os.path.isfile(os.path.join(
-                                doc_path, f)) and re.match("\d{1,3}", f)]
+                                doc_path, f)) and re.match(r'\d{1,3}', f)]
                      })
 
-    try:
-        status, errors = workflow.process_doc(doc_dict)
-        doc_dict['status'] = status
-        doc_dict['error'] = errors
-        batch_dict[os.path.basename(doc_path)] = doc_dict   # store the document information into the batch dictionary
-        print("{0:%Y-%m-%d %H:%M:%S}".format(datetime.now()) + " " +
-              "INFO (OBSAHATOR): Processing {} finished with {} errors...".format(doc_dict['name'], len(errors)))
-        print("{0:%Y-%m-%d %H:%M:%S}".format(datetime.now()) + " " + "INFO (OBSAHATOR): List of errors:")
-        print(errors)
-    except IOError as e:
-        print("{0:%Y-%m-%d %H:%M:%S}".format(datetime.now()) + " " +
-              'ERROR (OBSAHATOR): Processing error in {} : {}'.format(doc_dict['name'], e))
-    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+    if utility.check_isbn(doc_dict['id']) is True:     
+        try:
+            status, errors = workflow.process_doc(doc_dict)
+            doc_dict['status'] = status
+            doc_dict['error'] = errors
+            batch_dict[os.path.basename(doc_path)] = doc_dict   # store the document information into the batch dictionary
+            print("{0:%Y-%m-%d %H:%M:%S}".format(datetime.now()) + " " +
+                "INFO (OBSAHATOR): Processing {} finished with {} errors...".format(doc_dict['name'], len(errors)))
+            print("{0:%Y-%m-%d %H:%M:%S}".format(datetime.now()) + " " + "INFO (OBSAHATOR): List of errors:")
+            print(errors)
+        except IOError as e:
+            print("{0:%Y-%m-%d %H:%M:%S}".format(datetime.now()) + " " +
+                'ERROR (OBSAHATOR): Processing error in {} : {}'.format(doc_dict['name'], e))
+        print(">"*79)
     
-
-
-
+    elif utility.check_issn(doc_dict['id']) is True:
+        pass
+    
+    else:
+        pass
 
 
