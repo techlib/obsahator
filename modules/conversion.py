@@ -21,7 +21,7 @@ def convert_to_jpg(path_list):
         dirpath = os.path.dirname(path)
 
         # get filename and extension from filename
-        fn, ext = os.path.splitext(name)
+        fn = os.path.splitext(name)[0]
 
         # construct output file name
         outfile = fn + '.jpg'
@@ -30,15 +30,14 @@ def convert_to_jpg(path_list):
         outpath = os.path.join(dirpath, outfile)
 
         try:
-            print("{0:%Y-%m-%d %H:%M:%S}".format(datetime.now()) + " " + "INFO (CONVERSION): Converting {} to {}...".format(path, outpath))
+            print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (CONVERSION): Converting {path} to {outpath}...")
             if path == outpath:
-                print("{0:%Y-%m-%d %H:%M:%S}".format(datetime.now()) + " " +
-                      "INFO (CONVERSION): File {} already exist, won't covert.".format(outpath))
+                print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (CONVERSION): File {outpath} already exist, won't covert.")
                 continue
             Image.open(path).save(outpath)
             converted_files.append(outpath)
         except IOError:
-            raise IOError("{0:%Y-%m-%d %H:%M:%S}".format(datetime.now()) + " " + "ERROR (CONVERSION): Cannot convert", name)
+            raise IOError(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} ERROR (CONVERSION): Cannot convert {name}")
 
     return converted_files
 
