@@ -18,7 +18,7 @@ def get_set_number(dir_name):
     :return: set_number: string representing a set number of the search result
     """
     # separates date and ISBN from the directory name
-    date, isbn = str(dir_name).split(sep="_")
+    isbn = str(dir_name).split(sep="_")[1]
 
     # construct aleph query
     aleph_url = config.ALEPH_API + '/?op=find&request=isbn='+isbn+'&code=SBN&base=STK'
