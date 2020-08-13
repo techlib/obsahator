@@ -42,13 +42,11 @@ for doc_path in docs:
             doc_dict['status'] = status
             doc_dict['error'] = errors
             batch_dict[os.path.basename(doc_path)] = doc_dict   # store the document information into the batch dictionary
-            print("{0:%Y-%m-%d %H:%M:%S}".format(datetime.now()) + " " +
-                "INFO (OBSAHATOR): Processing {} finished with {} errors...".format(doc_dict['name'], len(errors)))
-            print("{0:%Y-%m-%d %H:%M:%S}".format(datetime.now()) + " " + "INFO (OBSAHATOR): List of errors:")
+            print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (OBSAHATOR): Processing {doc_dict['name']} finished with {len(errors)} errors...")
+            print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (OBSAHATOR): List of errors:")
             print(errors)
         except IOError as e:
-            print("{0:%Y-%m-%d %H:%M:%S}".format(datetime.now()) + " " +
-                'ERROR (OBSAHATOR): Processing error in {} : {}'.format(doc_dict['name'], e))
+            print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} ERROR (OBSAHATOR): Processing error in {doc_dict['name']} : {e}")
         print(">"*79)
     
     elif utility.check_issn(doc_dict['id']) is True:

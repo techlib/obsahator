@@ -105,15 +105,13 @@ def set_status(doc_path, status):
     elif status == 'finished':
         filepath = os.path.join(filepath, config.STATUS_DONE)
 
-    print("{0:%Y-%m-%d %H:%M:%S}".format(datetime.now()) + " " +
-          "INFO (UTILITY): FILEPATH: ", filepath)
+    print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (UTILITY): FILEPATH: {filepath}")
     try:
         f = open(filepath, mode='w')
         f.write(doc_path)
         f.close()
     except:
-        raise IOError("{0:%Y-%m-%d %H:%M:%S}".format(datetime.now()) + " " +
-                      "ERROR (UTILITY): Failed to write the status file into ", doc_path)
+        raise IOError(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} ERROR (UTILITY): Failed to write the status file into {doc_path}")
 
 
 def check_isbn(string):
@@ -174,5 +172,3 @@ def check_issn(string):
             return True
         else:
             return False
-
-        

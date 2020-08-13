@@ -31,8 +31,7 @@ def process_cover(info_dict):
     :return: status of the processing
     """
     if os.path.isfile(os.path.join(info_dict['path'], config.STATUS_COVER)):
-        print("{0:%Y-%m-%d %H:%M:%S}".format(datetime.now()) + " " +
-              "INFO (COVER): Cover for document {} already processed...".format(info_dict['name']))
+        print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (COVER): Cover for document {info_dict['name']} already processed...")
         return 'finished'
 
     for doc_info, doc_content in info_dict.items():
@@ -41,32 +40,28 @@ def process_cover(info_dict):
         if doc_info == 'cover':
             try:
                 set_number = catalogue.get_set_number(info_dict['name'])
-                print("{0:%Y-%m-%d %H:%M:%S}".format(datetime.now()) +
-                      "INFO (COVER): {}\tSET NUMBER: {}".format(info_dict['name'], set_number))
+                print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (COVER): {info_dict['name']}\tSET NUMBER: {set_number}")
+                
                 sysno = catalogue.get_document_sysno(set_number=set_number)
-                print("{0:%Y-%m-%d %H:%M:%S}".format(datetime.now()) +
-                      "INFO (COVER): {}\tSYSNO: {}".format(info_dict['name'], sysno))
+                print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (COVER): {info_dict['name']}\tSYSNO: {sysno}")
+                
                 converted_paths = conversion.convert_to_jpg(doc_content)
                 print("{0:%Y-%m-%d %H:%M:%S}".format(datetime.now()) + " " +
                       "INFO (COVER): {}\tCONVERTED IMAGES: {}".format(info_dict['name'], converted_paths))
+                
                 if len(converted_paths) > 1:
-                    raise ValueError("{0:%Y-%m-%d %H:%M:%S}".format(datetime.now()) + " " +
-                                     "ERROR (COVER): Document {} has more than one cover page.".format(info_dict['name']
-                                                                                                       )
-                                     )
+                    raise ValueError(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} ERROR (COVER): Document {info_dict['name']} has more than one cover page.")
 
                 for path in converted_paths:
                     new_path = utility.rename_document(original_path=path, new_name=sysno)
                     renamed_paths.append(new_path)
-                print("{0:%Y-%m-%d %H:%M:%S}".format(datetime.now()) + " " +
-                      "INFO (COVER): {}\tNEW PATHS: {}".format(info_dict['name'], renamed_paths))
+                print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (COVER): {info_dict['name']}\tNEW PATHS: {renamed_paths}")
 
                 utility.copy_to_server(paths_list=renamed_paths, destination=config.COVER_DIR)
                 utility.set_status(doc_path=info_dict['path'], status='cover')
                 return 'finished'
             except:
-                raise RuntimeError("{0:%Y-%m-%d %H:%M:%S}".format(datetime.now()) + " " +
-                                   "ERROR (COVER): Error processing document {}: {}".format(info_dict['name']))
+                raise RuntimeError(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} ERROR (COVER): Error processing document {info_dict['name']}")
 
 
 def process_toc(info_dict):
@@ -108,7 +103,7 @@ def process_toc(info_dict):
 
         # if it's done (it has result), check if is failed, if yes, raise an error
         if ocr.is_failed(info_dict):
-            raise IOError("{0:%Y-%m-%d %H:%M:%S}".format(datetime.now()) + " " + "ERROR: Failed to OCR the document...")
+            raise IOError(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} ERROR: Failed to OCR the document...")
 
         # move the finished ocr results (txt files) to document root
         try:
@@ -163,11 +158,9 @@ def process_doc(doc_info_dict):
         else:
             status = 'running'                                  # at least one of the processes returned something else
                                                                 # than 'finished' or 'error'
-        print("{0:%Y-%m-%d %H:%M:%S}".format(datetime.now()) + " " +
-              "INFO (PROCESS DOC): Status of the document {} is:\t{}...".format(doc_info_dict['name'],
-                                                                                status.capitalize()))
+        print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (PROCESS DOC): Status of the document {doc_info_dict['name']} is:\t{status.capitalize()}...")
     except IOError as e:
-        print("{0:%Y-%m-%d %H:%M:%S}".format(datetime.now()) + " " + "ERROR: " + e + " in " + doc_info_dict['path'])
+        print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} ERROR: {e} in {doc_info_dict['path']}")
         print(e)
         errors.append(e)
         status = 'error'

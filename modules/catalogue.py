@@ -38,19 +38,17 @@ def get_set_number(dir_name):
     aleph_result_generator = utility.find_item_in_response(result_set_dict, key='no_records')
     # check number of found documents
     for aleph_result in aleph_result_generator:       
-        print("{0:%Y-%m-%d %H:%M:%S}".format(datetime.now()) + " " + "INFO (CATALOGUE): ALEPH RESULT 001:", aleph_result)
+        print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (CATALOGUE): ALEPH RESULT 001: {aleph_result}")
         if re.match('[0]{9}', aleph_result):
-            raise IOError("ERROR (CATALOGUE): No document found for isbn {}...".format(isbn))
+            raise IOError(f"ERROR (CATALOGUE): No document found for isbn {isbn}...")
         # if there are some documents found, get the set number from the response
         if re.match('[0]{8}[1]{1}', aleph_result):
-            print("{0:%Y-%m-%d %H:%M:%S}".format(datetime.now()) + " " +
-                  "INFO (CATALOGUE): Found one result for the Aleph query.")
+            print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (CATALOGUE): Found one result for the Aleph query.")
             set_number_generator = utility.find_item_in_response(result_set_dict, 'set_number')
             for set_number in set_number_generator:
                 return set_number
         else:
-            print("{0:%Y-%m-%d %H:%M:%S}".format(datetime.now()) + " " +
-                  "WARNING (CATALOGUE): Found multiple results for search query...")
+            print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} WARNING (CATALOGUE): Found multiple results for search query...")
             set_number_generator = utility.find_item_in_response(result_set_dict, 'set_number')
             for set_number in set_number_generator:
                 return set_number
@@ -64,7 +62,7 @@ def get_document_sysno(set_number):
     """
     aleph_result = '000000001'  # indicates what result we want, in this case, always the first one
 
-    print("{0:%Y-%m-%d %H:%M:%S}".format(datetime.now()) + " " + "INFO (CATALOGUE): SET NUMBER:", set_number)
+    print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (CATALOGUE): SET NUMBER:", set_number)
 
     # construct aleph record query
     aleph_record_query = config.ALEPH_API+'?op=present&set_entry='+aleph_result+'&set_number='+set_number
@@ -73,8 +71,7 @@ def get_document_sysno(set_number):
     # check response status code
     if aleph_record_response.status_code != 200:
         print(aleph_record_response.status_code, aleph_record_query)
-        raise IOError("{0:%Y-%m-%d %H:%M:%S}".format(datetime.now()) + " " +
-                      "ERROR (CATALOGUE): Server returned status {}".format(aleph_record_response.status_code))
+        raise IOError(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} ERROR (CATALOGUE): Server returned status {aleph_record_response.status_code}")
 
     print(aleph_record_response.status_code, aleph_record_query)
     # parse result text to a dictionary
