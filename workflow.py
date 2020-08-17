@@ -122,7 +122,7 @@ def process_toc(info_dict):
         raise e
 
 
-def process_doc(doc_info_dict):
+def process_doc_monograph(doc_info_dict):
     """
     Manages the processing of the document's cover and TOC pages.
 
@@ -168,3 +168,29 @@ def process_doc(doc_info_dict):
     finally:
         return status, errors
 
+def process_doc_periodical(doc_info_dict):
+    errors = []
+    status = ''
+
+    try:
+        cover_status = process_cover(doc_info_dict)     # process the cover
+        if cover_status == 'error':    # set the appropriate status
+            status = 'error'
+        elif cover_status == 'finished':
+            # if each process returns 'finished', rename the doc
+            utility.rename_document(original_path=doc_info_dict['path'],
+                                    new_name=config.FINISHED_PREFIX+doc_info_dict['name'])
+            status = 'finished'                                 # set processing status to 'finished' 
+        
+        else:
+            status = 'running'                                  # at least one of the processes returned something else
+                                                                # than 'finished' or 'error'
+        print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (PROCESS DOC): Status of the document {doc_info_dict['name']} is:\t{status.capitalize()}...")
+    except IOError as e:
+        print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} ERROR: {e} in {doc_info_dict['path']}")
+        print(e)
+        errors.append(e)
+        status = 'error'
+
+    finally:
+        return status, errors

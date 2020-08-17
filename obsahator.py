@@ -38,7 +38,7 @@ for doc_path in docs:
 
     if utility.check_isbn(doc_dict['id']) is True:     
         try:
-            status, errors = workflow.process_doc(doc_dict)
+            status, errors = workflow.process_doc_monograph(doc_dict)
             doc_dict['status'] = status
             doc_dict['error'] = errors
             batch_dict[os.path.basename(doc_path)] = doc_dict   # store the document information into the batch dictionary
@@ -50,7 +50,18 @@ for doc_path in docs:
         print(">"*79)
     
     elif utility.check_issn(doc_dict['id']) is True:
-        pass
+        try:
+            status, errors = workflow.process_doc_periodical(doc_dict)
+            doc_dict['status'] = status
+            doc_dict['error'] = errors
+            batch_dict[os.path.basename(doc_path)] = doc_dict   # store the document information into the batch dictionary
+            print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (OBSAHATOR): Processing {doc_dict['name']} finished with {len(errors)} errors...")
+            print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (OBSAHATOR): List of errors:")
+            print(errors)
+        except IOError as e:
+            print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} ERROR (OBSAHATOR): Processing error in {doc_dict['name']} : {e}")
+        print(">"*79)
+        
     
     else:
         pass

@@ -13,15 +13,20 @@ from datetime import datetime
 def get_set_number(dir_name):
     """
     Get's the set number of the document from Aleph library system based on the directory name which is equal to
-    documents' ISBN number. Performs a search for a document record based on the ISBN identifier.
+    documents' isbn/issn number. Performs a search for a document record based on the identifier.
     :param dir_name: name of the
     :return: set_number: string representing a set number of the search result
     """
-    # separates date and ISBN from the directory name
-    isbn = str(dir_name).split(sep="_")[1]
+    # separates date and identifier from the directory name
+    identifier = str(dir_name).split(sep="_")[1]
 
+    # TODO add request forming for issn numbers
     # construct aleph query
-    aleph_url = config.ALEPH_API + '/?op=find&request=isbn='+isbn+'&code=SBN&base=STK'
+    if len(identifier) < 10:
+        aleph_url = config.ALEPH_API + '/?op=find&request=issn='+identifier+'&base=STK'
+    
+    else:
+        aleph_url = config.ALEPH_API + '/?op=find&request=isbn='+identifier+'&code=SBN&base=STK'
 
     # get response
     aleph_response = requests.get(aleph_url)
@@ -40,7 +45,7 @@ def get_set_number(dir_name):
     for aleph_result in aleph_result_generator:       
         print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (CATALOGUE): ALEPH RESULT 001: {aleph_result}")
         if re.match('[0]{9}', aleph_result):
-            raise IOError(f"ERROR (CATALOGUE): No document found for isbn {isbn}...")
+            raise IOError(f"ERROR (CATALOGUE): No document found for identifier {identifier}...")
         # if there are some documents found, get the set number from the response
         if re.match('[0]{8}[1]{1}', aleph_result):
             print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (CATALOGUE): Found one result for the Aleph query.")
