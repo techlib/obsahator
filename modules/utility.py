@@ -45,12 +45,10 @@ def rename_document(original_path, new_name):
           "INFO (UTILITY): RENAME DOCUMENT ORIGINAL PATH: ", original_path)
     # check if the path is a file or a directory
     if os.path.isfile(original_path):
-        # old_name, ext = os.path.splitext(original_path)
-        ext = os.path.splitext(original_path)
+        ext = os.path.splitext(original_path)[1]
         renamed = new_name + ext
         new_path = os.path.join(os.path.dirname(original_path), renamed)
     elif os.path.isdir(original_path):
-        # old_name = os.path.basename(original_path)
         renamed = new_name
         new_path = os.path.join(os.path.dirname(original_path), renamed)
     print("{0:%Y-%m-%d %H:%M:%S}".format(datetime.now()) + " " +
