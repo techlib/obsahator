@@ -121,7 +121,7 @@ def check_isbn(string):
     
     if len(string) == 10:
         # sum of all ten digits, each multiplied by its weight in ascending order from 1 to 10, is a multiple of 11.    
-        w, p = 10, 0
+        w, p = 10, 0 # weight, product
         for char in string:
             if char is not "x":
                 p += int(char)*w
@@ -130,14 +130,14 @@ def check_isbn(string):
                 p += 10*w
                 w -= 1
 
-        if p % 11 == 0:
+        if p % 11 == 0: # multiple of 11 --> valid isbn-10
             return True
         else:
             return False
     
     if len(string) == 13:
         # the sum of all digits, each multiplied by its weight, alternating between 1 and 3, is a multiple of 10
-        w, p = 1, 0
+        w, p = 1, 0 # weight, product
         for char in string:
             for char in string:
                 if char is not "x":
@@ -147,8 +147,8 @@ def check_isbn(string):
                     p += 10*w
                     w = 4-w
 
-        if p % 10 == 0:
-            return True
+        if p % 10 == 0: # multiple of 10 --> valid isbn-13
+            return True 
         else:
             return False
         
@@ -159,7 +159,7 @@ def check_issn(string):
 
     if len(string) == 8:
         # Sum of all ten digits, each multiplied by its weight in ascending order from 1 to 8, is a multiple of 11.
-        w, p = 8, 0  
+        w, p = 8, 0  # weight, product
         for char in string:
             if char is not "x":
                 p += int(char)*w
@@ -168,7 +168,7 @@ def check_issn(string):
                 p += 10*w
                 w -= 1
 
-        if p % 11 == 0:
+        if p % 11 == 0: # product divisble by 11 --> valid issn
             return True
         else:
             return False
