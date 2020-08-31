@@ -12,7 +12,7 @@ from modules import ocr
 from datetime import datetime
 
 
-def process_cover(info_dict):
+def process_cover(info_dict, periodical=False):
     """
     Processes cover image of the document.
 
@@ -28,6 +28,7 @@ def process_cover(info_dict):
 
     I one of these function fails, it raises an exception.
     :param info_dict: dict containing information about document that is currently being processed
+    :param periodical: if set to True, processed cover image will be marked with "_periodical" suffix
     :return: status of the processing
     """
     if os.path.isfile(os.path.join(info_dict['path'], config.STATUS_COVER)):
@@ -52,10 +53,17 @@ def process_cover(info_dict):
                 if len(converted_paths) > 1:
                     raise ValueError(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} ERROR (COVER): Document {info_dict['name']} has more than one cover page.")
 
-                for path in converted_paths:
-                    new_path = utility.rename_document(original_path=path, new_name=sysno)
-                    renamed_paths.append(new_path)
-                print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (COVER): {info_dict['name']}\tNEW PATHS: {renamed_paths}")
+                if periodical is False:
+                    for path in converted_paths:
+                        new_path = utility.rename_document(original_path=path, new_name=sysno)
+                        renamed_paths.append(new_path)
+                    print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (COVER): {info_dict['name']}\tNEW PATHS: {renamed_paths}")
+
+                else:
+                    for path in converted_paths:
+                        new_path = utility.rename_document(original_path=path, new_name=f'{sysno}_periodical')
+                        renamed_paths.append(new_path)
+                    print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (COVER): {info_dict['name']}\tNEW PATHS: {renamed_paths}")
 
                 utility.copy_to_server(paths_list=renamed_paths, destination=config.COVER_DIR)
                 utility.set_status(doc_path=info_dict['path'], status='cover')
@@ -173,7 +181,7 @@ def process_doc_periodical(doc_info_dict):
     status = ''
 
     try:
-        cover_status = process_cover(doc_info_dict)     # process the cover
+        cover_status = process_cover(doc_info_dict, periodical=True)    # process the cover
         if cover_status == 'error':    # set the appropriate status
             status = 'error'
         elif cover_status == 'finished':
