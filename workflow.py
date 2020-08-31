@@ -47,12 +47,11 @@ def process_cover(info_dict, periodical=False):
                 print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (COVER): {info_dict['name']}\tSYSNO: {sysno}")
                 
                 converted_paths = conversion.convert_to_jpg(doc_content)
-                print("{0:%Y-%m-%d %H:%M:%S}".format(datetime.now()) + " " +
-                      "INFO (COVER): {}\tCONVERTED IMAGES: {}".format(info_dict['name'], converted_paths))
+                print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (COVER): {info_dict['name']}\tCONVERTED IMAGES: {converted_paths}")
                 
                 if len(converted_paths) > 1:
                     raise ValueError(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} ERROR (COVER): Document {info_dict['name']} has more than one cover page.")
-
+                
                 if periodical is False:
                     for path in converted_paths:
                         new_path = utility.rename_document(original_path=path, new_name=sysno)
@@ -68,6 +67,7 @@ def process_cover(info_dict, periodical=False):
                 utility.copy_to_server(paths_list=renamed_paths, destination=config.COVER_DIR)
                 utility.set_status(doc_path=info_dict['path'], status='cover')
                 return 'finished'
+
             except:
                 raise RuntimeError(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} ERROR (COVER): Error processing document {info_dict['name']}")
 
