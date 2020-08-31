@@ -115,7 +115,12 @@ def set_status(doc_path, status):
 
 
 def check_isbn(string):
-    """Return true if string passed is valid isbn."""
+    """
+    Return true if string passed is valid isbn.
+    
+    :param string: string to be checked
+    :return: True if checked string is valid isbn
+    """
     # Drop dashes from string and convert to lowercase in case of 10 being represented as X
     string = string.replace("-", "").lower()
     
@@ -153,7 +158,12 @@ def check_isbn(string):
             return False
         
 def check_issn(string):
-    """Return true if string passed is valid issn."""
+    """
+    Return true if string passed is valid issn.
+    
+    :param string: string to be checked
+    :return: True if checked string is valid issn
+    """
     # Drop dashes from string and convert to lowercase in case of 10 being represented as X
     string = string.replace("-", "").lower()
 
