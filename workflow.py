@@ -12,7 +12,7 @@ from modules import ocr
 from datetime import datetime
 
 
-def process_cover(info_dict, periodical=False):
+def process_cover_monograph(info_dict):
     """
     Processes cover image of the document.
 
@@ -28,7 +28,6 @@ def process_cover(info_dict, periodical=False):
 
     I one of these function fails, it raises an exception.
     :param info_dict: dict containing information about document that is currently being processed
-    :param periodical: if set to True, processed cover image will be marked with "_periodical" suffix
     :return: status of the processing
     """
     if os.path.isfile(os.path.join(info_dict['path'], config.STATUS_COVER)):
@@ -52,19 +51,70 @@ def process_cover(info_dict, periodical=False):
                 if len(converted_paths) > 1:
                     raise ValueError(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} ERROR (COVER): Document {info_dict['name']} has more than one cover page.")
                 
-                if periodical is False:
-                    for path in converted_paths:
-                        new_path = utility.rename_document(original_path=path, new_name=sysno)
-                        renamed_paths.append(new_path)
-                    print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (COVER): {info_dict['name']}\tNEW PATHS: {renamed_paths}")
 
-                else:
-                    for path in converted_paths:
-                        new_path = utility.rename_document(original_path=path, new_name=f'{sysno}_periodical')
-                        renamed_paths.append(new_path)
-                    print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (COVER): {info_dict['name']}\tNEW PATHS: {renamed_paths}")
+                for path in converted_paths:
+                    new_path = utility.rename_document(original_path=path, new_name=sysno)
+                    renamed_paths.append(new_path)
+                print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (COVER): {info_dict['name']}\tNEW PATHS: {renamed_paths}")
 
                 utility.copy_to_server(paths_list=renamed_paths, destination=config.COVER_DIR)
+                utility.set_status(doc_path=info_dict['path'], status='cover')
+                return 'finished'
+
+            except:
+                raise RuntimeError(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} ERROR (COVER): Error processing document {info_dict['name']}")
+
+def process_cover_periodical(info_dict):
+    """
+    Processes cover image of the document.
+
+    First, function checks if the cover processing hasn't been done yet. If so, it returns status 'finished'.
+
+    If the cover is not yet processed,function goes through following:
+
+    1) Calls the functions responsible for catalogue system number search
+    2) Calls the functiion responsible for converting the cover image to JPEG format
+    3) Calls the function responsible for renaming the cover image file according to naming convention
+    4) Calls the function responsible for moving the converted image to it's destination in shared folder
+    5) Calls the function responsible for setting correct status of the document
+
+    I one of these function fails, it raises an exception.
+    :param info_dict: dict containing information about document that is currently being processed
+    :return: status of the processing
+    """
+    if os.path.isfile(os.path.join(info_dict['path'], config.STATUS_COVER)):
+        print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (COVER): Cover for document {info_dict['name']} already processed...")
+        return 'finished'
+
+    for doc_info, doc_content in info_dict.items():
+        # process covers
+        renamed_paths = []
+        if doc_info == 'cover':
+            try:
+                set_number = catalogue.get_set_number(info_dict['name'])
+                print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (COVER): {info_dict['name']}\tSET NUMBER: {set_number}")
+                
+                sysno = catalogue.get_document_sysno(set_number=set_number)
+                print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (COVER): {info_dict['name']}\tSYSNO: {sysno}")
+                
+                converted_paths = conversion.convert_to_jpg(doc_content)
+                print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (COVER): {info_dict['name']}\tCONVERTED IMAGES: {converted_paths}")
+                
+                if len(converted_paths) > 1:
+                    raise ValueError(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} ERROR (COVER): Document {info_dict['name']} has more than one cover page.")
+                
+                for path in converted_paths:
+                    print(path)
+                    issn_compact = os.path.splitext(os.path.split(path)[1])[0].replace("-","")  # take filename from path, remove hyphens
+                    new_path = utility.rename_document(original_path=path, new_name=issn_compact)
+                    renamed_paths.append(new_path)
+                print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (COVER): {info_dict['name']}\tNEW PATHS: {renamed_paths}")
+
+                # periodical covers are stored in same config.COVER dir just like monographs, except within a folder that has datestamp
+                if os.path.isdir(os.path.join(config.COVER_DIR,datetime.now().strftime("%Y_%m_%d"+"_casopisy/"))) is False:
+                    os.mkdir(os.path.join(config.COVER_DIR,datetime.now().strftime("%Y_%m_%d"+"_casopisy/")))
+                
+                utility.copy_to_server(paths_list=renamed_paths, destination=os.path.join(config.COVER_DIR,datetime.now().strftime("%Y_%m_%d"+"_casopisy/")))
                 utility.set_status(doc_path=info_dict['path'], status='cover')
                 return 'finished'
 
@@ -132,7 +182,7 @@ def process_toc(info_dict):
 
 def process_doc_monograph(doc_info_dict):
     """
-    Manages the processing of the document's cover and TOC pages.
+    Manages the processing of monograph's cover and TOC pages.
 
     Function tries to process the cover and TOC pages of the document and collect the status of each process. If each
     process return status 'finished', function renames the folder to mark it as DONE and sets processing status
@@ -153,7 +203,7 @@ def process_doc_monograph(doc_info_dict):
     status = ''
 
     try:
-        cover_status = process_cover(doc_info_dict)     # process the cover
+        cover_status = process_cover_monograph(doc_info_dict)     # process the cover
         toc_status = process_toc(doc_info_dict)         # process the TOC
         if cover_status == 'error' or toc_status == 'error':    # set the appropriate status
             status = 'error'
@@ -177,11 +227,27 @@ def process_doc_monograph(doc_info_dict):
         return status, errors
 
 def process_doc_periodical(doc_info_dict):
+    """
+    Manages the processing of periodical documents. 
+
+    Function tries to process the cover and collect the status of each process. If each
+    process returns status 'finished', function renames the folder to mark it as DONE and sets processing status
+    to 'finished'.
+
+    If one of the processes returns different status, function sets processing status to 'running'.
+
+    If an error occurs in one of the processes, function catches an exception, and appends the error the list.
+
+    Finally, the function returns the document processing status and error list.
+
+    :param doc_info_dict: dictionary containing the information about document that is currently being processed
+    :return: tuple - status of the document processing and error list
+    """
     errors = []
     status = ''
 
     try:
-        cover_status = process_cover(doc_info_dict, periodical=True)    # process the cover
+        cover_status = process_cover_periodical(doc_info_dict)  # process the cover
         if cover_status == 'error':    # set the appropriate status
             status = 'error'
         elif cover_status == 'finished':
