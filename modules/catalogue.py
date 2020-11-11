@@ -22,7 +22,10 @@ def get_set_number(dir_name):
 
     # TODO add request forming for issn numbers
     # construct aleph query
-    if len(identifier) < 10:
+    if identifier.startswith("cnb"):
+        aleph_url = config.ALEPH_API + '/?op=find&request=cnb='+identifier+'&base=STK'
+
+    elif len(identifier) < 10:
         aleph_url = config.ALEPH_API + '/?op=find&request=issn='+identifier+'&base=STK'
     
     else:

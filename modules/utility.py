@@ -4,6 +4,7 @@
 import os
 import shutil
 import config
+import re
 from datetime import datetime
 
 
@@ -129,31 +130,26 @@ def check_isbn(string):
             if char is not "x":
                 p += int(char)*w
                 w -= 1
-            if char is "x":
+            elif char is "x":
                 p += 10*w
                 w -= 1
 
-        if p % 11 == 0: # multiple of 11 --> valid isbn-10
-            return True
-        else:
-            return False
+        return p % 11 == 0 # multiple of 11 --> valid isbn-10
+
     
     if len(string) == 13:
         # the sum of all digits, each multiplied by its weight, alternating between 1 and 3, is a multiple of 10
-        w, p = 1, 0 # weight, product
+        w, p = 1, 0 # weight, product () #
         for char in string:
-            for char in string:
-                if char is not "x":
-                    p += int(char)*w
-                    w = 4-w # subtraction from their total switches between 1 and 3        
-                if char is "x":
-                    p += 10*w
-                    w = 4-w
+            if char is not "x":
+                p += int(char)*w
+                w = 4-w # subtraction from their total switches between 1 and 3        
+            elif char is "x":
+                p += 10*w
 
-        if p % 10 == 0: # multiple of 10 --> valid isbn-13
-            return True 
-        else:
-            return False
+        return p % 10 == 0 # multiple of 10 --> valid isbn-13
+        
+        
         
 def check_issn(string):
     """
@@ -180,3 +176,50 @@ def check_issn(string):
             return True
         else:
             return False
+
+def check_sysno(string):
+    """
+    Return true if string passed is valid NTL system number.
+    In case of this workflow it always begins with SIGLA + 9 numbers    
+    
+    :param string: string to be checked
+    :return: True if checked string is valid system number
+    """
+    # TODO validate if such system number exists in library catalogue as well
+    # String must conform to pattern
+    repattern = r'^ABA013-\d\d\d\d\d\d\d\d\d$'
+    if re.match(repattern, string):
+        return True
+
+
+def check_cnb(string):
+    """
+    Return true if string passed is valid CNB identifier. 
+    
+    :param string: string to be checked
+    :return: True if checked string is valid CNB
+    """
+    # TODO validate if such system number exists in library catalogue as well
+    # String must conform to pattern
+    repattern = r'^cnb\d\d\d\d\d\d\d\d\d$'
+    if re.match(repattern, string):
+        return True
+
+def determine_identifier(string):
+    """
+    Apply all above functions and return type of identifier.
+
+    :param string: character string to check for identifiers
+    :return: String describing resolved identifier.
+    """
+
+    if check_isbn(string):
+        return 'isbn'
+    elif check_issn(string):
+        return 'issn'
+    elif check_cnb(string):
+        return 'cnb'
+    elif check_sysno(string):
+        return 'sysno'
+    else:
+        return 'fail'

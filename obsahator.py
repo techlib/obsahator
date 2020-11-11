@@ -36,7 +36,7 @@ for doc_path in docs:
                                 doc_path, f)) and re.match(r'\d{1,3}', f)]
                      })
 
-    if utility.check_isbn(doc_dict['id']) is True:     
+    if utility.determine_identifier(doc_dict['id']) in ['isbn', 'cnb', 'sysno']:
         try:
             status, errors = workflow.process_doc_monograph(doc_dict)
             doc_dict['status'] = status
@@ -49,7 +49,7 @@ for doc_path in docs:
             print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} ERROR (OBSAHATOR): Processing error in {doc_dict['name']} : {e}")
         print(">"*79)
     
-    elif utility.check_issn(doc_dict['id']) is True:
+    elif utility.determine_identifier(doc_dict['id']) in ['issn']:
         try:
             status, errors = workflow.process_doc_periodical(doc_dict)
             doc_dict['status'] = status
@@ -64,6 +64,10 @@ for doc_path in docs:
         
     
     else:
+        print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} ERROR unable to determine identifier for: {doc_dict['name']}")
+        utility.rename_document(original_path=doc_dict['path'],
+                                new_name=config.FAIL_PREFIX+doc_dict['name'])
+        print(">"*79)
         pass
 
 

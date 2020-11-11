@@ -39,14 +39,18 @@ def process_cover_monograph(info_dict):
         renamed_paths = []
         if doc_info == 'cover':
             try:
-                set_number = catalogue.get_set_number(info_dict['name'])
-                print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (COVER): {info_dict['name']}\tSET NUMBER: {set_number}")
-                
-                sysno = catalogue.get_document_sysno(set_number=set_number)
-                print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (COVER): {info_dict['name']}\tSYSNO: {sysno}")
-                
-                converted_paths = conversion.convert_to_jpg(doc_content)
-                print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (COVER): {info_dict['name']}\tCONVERTED IMAGES: {converted_paths}")
+                sysno = None
+                if info_dict['id'].startswith("ABA013-"):
+                    sysno = info_dict['id'][7:]
+                else:
+                    set_number = catalogue.get_set_number(info_dict['name'])
+                    print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (COVER): {info_dict['name']}\tSET NUMBER: {set_number}")
+                    
+                    sysno = catalogue.get_document_sysno(set_number=set_number)
+                    print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (COVER): {info_dict['name']}\tSYSNO: {sysno}")
+                    
+                    converted_paths = conversion.convert_to_jpg(doc_content)
+                    print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (COVER): {info_dict['name']}\tCONVERTED IMAGES: {converted_paths}")
                 
                 if len(converted_paths) > 1:
                     raise ValueError(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} ERROR (COVER): Document {info_dict['name']} has more than one cover page.")
