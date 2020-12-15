@@ -37,6 +37,9 @@ def get_set_number(dir_name):
     # check response from the server
     if aleph_response.status_code != 200:
         print(aleph_response.status_code, aleph_url)
+        raise IOError("ERROR (CATALOGUE): Failed to retrieve set number")
+
+    print("Aleph response: ")    
     print(aleph_response.text)
 
     # parse aleph response text to a dictionary
@@ -44,15 +47,16 @@ def get_set_number(dir_name):
 
     # find number of records in the response
     aleph_result_generator = utility.find_item_in_response(result_set_dict, key='no_records')
+
     # check number of found documents
-    for aleph_result in aleph_result_generator:       
-        print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (CATALOGUE): ALEPH RESULT 001: {aleph_result}")
+    for aleph_result in aleph_result_generator:     
         if re.match('[0]{9}', aleph_result):
             raise IOError(f"ERROR (CATALOGUE): No document found for identifier {identifier}...")
         # if there are some documents found, get the set number from the response
         if re.match('[0]{8}[1]{1}', aleph_result):
             print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (CATALOGUE): Found one result for the Aleph query.")
             set_number_generator = utility.find_item_in_response(result_set_dict, 'set_number')
+
             for set_number in set_number_generator:
                 return set_number
         else:

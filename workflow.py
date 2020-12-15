@@ -35,15 +35,25 @@ def process_cover_monograph(info_dict):
         return 'finished'
 
     for doc_info, doc_content in info_dict.items():
+#        print(doc_info)
+#        print(doc_content)
         # process covers
         renamed_paths = []
         if doc_info == 'cover':
-            try:
                 sysno = None
+                # attempt to find system number
                 if info_dict['id'].startswith("ABA013-"):
                     sysno = info_dict['id'][7:]
+                    print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (COVER): {info_dict['name']}\tSYSNO: {sysno}")
+                    converted_paths = conversion.convert_to_jpg(doc_content)
+                    print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (COVER): {info_dict['name']}\tCONVERTED IMAGES: {converted_paths}")
+
                 else:
                     set_number = catalogue.get_set_number(info_dict['name'])
+
+                    if set_number is None:
+                        raise IOError(f"ERROR (COVER): Set number returned empty!")
+                    
                     print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (COVER): {info_dict['name']}\tSET NUMBER: {set_number}")
                     
                     sysno = catalogue.get_document_sysno(set_number=set_number)
@@ -52,10 +62,11 @@ def process_cover_monograph(info_dict):
                     converted_paths = conversion.convert_to_jpg(doc_content)
                     print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (COVER): {info_dict['name']}\tCONVERTED IMAGES: {converted_paths}")
                 
+                if sysno is None:
+                    raise ValueError(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} ERROR (COVER): Document {info_dict['name']} has no sysno!")
+                    
                 if len(converted_paths) > 1:
                     raise ValueError(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} ERROR (COVER): Document {info_dict['name']} has more than one cover page.")
-                
-
                 for path in converted_paths:
                     new_path = utility.rename_document(original_path=path, new_name=sysno)
                     renamed_paths.append(new_path)
@@ -65,8 +76,7 @@ def process_cover_monograph(info_dict):
                 utility.set_status(doc_path=info_dict['path'], status='cover')
                 return 'finished'
 
-            except:
-                raise RuntimeError(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} ERROR (COVER): Error processing document {info_dict['name']}")
+
 
 def process_cover_periodical(info_dict):
     """
@@ -96,7 +106,11 @@ def process_cover_periodical(info_dict):
         if doc_info == 'cover':
             try:
                 set_number = catalogue.get_set_number(info_dict['name'])
+                if set_number is None:
+                    raise IOError(f"ERROR (COVER): Set number returned empty!")
+                
                 print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (COVER): {info_dict['name']}\tSET NUMBER: {set_number}")
+
                 
                 sysno = catalogue.get_document_sysno(set_number=set_number)
                 print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (COVER): {info_dict['name']}\tSYSNO: {sysno}")
@@ -123,7 +137,8 @@ def process_cover_periodical(info_dict):
                 return 'finished'
 
             except:
-                raise RuntimeError(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} ERROR (COVER): Error processing document {info_dict['name']}")
+                print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} ERROR (COVER): Error processing document {info_dict['name']}")
+                return 'error'
 
 
 def process_toc(info_dict):
@@ -211,6 +226,8 @@ def process_doc_monograph(doc_info_dict):
         toc_status = process_toc(doc_info_dict)         # process the TOC
         if cover_status == 'error' or toc_status == 'error':    # set the appropriate status
             status = 'error'
+            raise IOError
+
         elif cover_status == 'finished' and toc_status == 'finished':
             # if each process returns 'finished', rename the doc
             utility.rename_document(original_path=doc_info_dict['path'],
@@ -221,7 +238,8 @@ def process_doc_monograph(doc_info_dict):
             status = 'running'                                  # at least one of the processes returned something else
                                                                 # than 'finished' or 'error'
         print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (PROCESS DOC): Status of the document {doc_info_dict['name']} is:\t{status.capitalize()}...")
-    except IOError as e:
+
+    except (IOError,ValueError) as e:
         print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} ERROR: {e} in {doc_info_dict['path']}")
         print(e)
         errors.append(e)
@@ -254,6 +272,7 @@ def process_doc_periodical(doc_info_dict):
         cover_status = process_cover_periodical(doc_info_dict)  # process the cover
         if cover_status == 'error':    # set the appropriate status
             status = 'error'
+            raise IOError
         elif cover_status == 'finished':
             # if each process returns 'finished', rename the doc
             utility.rename_document(original_path=doc_info_dict['path'],
@@ -264,7 +283,8 @@ def process_doc_periodical(doc_info_dict):
             status = 'running'                                  # at least one of the processes returned something else
                                                                 # than 'finished' or 'error'
         print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (PROCESS DOC): Status of the document {doc_info_dict['name']} is:\t{status.capitalize()}...")
-    except IOError as e:
+
+    except (IOError,ValueError) as e:
         print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} ERROR: {e} in {doc_info_dict['path']}")
         print(e)
         errors.append(e)

@@ -33,7 +33,8 @@ for doc_path in docs:
                      'toc':     [os.path.join(doc_path, f) for f in os.listdir(doc_path) if os.path.isfile(os.path.join(
                                 doc_path, f)) and re.match(r'^toc-', f)],
                      'cover':   [os.path.join(doc_path, f) for f in os.listdir(doc_path) if os.path.isfile(os.path.join(
-                                doc_path, f)) and re.match(r'\d{1,3}', f)]
+                                doc_path, f)) and re.match(r'^(?!toc-|.cover|.ocr)', f)]
+                                #doc_path, f)) and re.match(r'\d{1,3}', f)]  ^(?!toc-|.cover|.ocr)
                      })
 
     if utility.determine_identifier(doc_dict['id']) in ['isbn', 'cnb', 'sysno']:
