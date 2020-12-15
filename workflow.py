@@ -104,7 +104,6 @@ def process_cover_periodical(info_dict):
         # process covers
         renamed_paths = []
         if doc_info == 'cover':
-            try:
                 set_number = catalogue.get_set_number(info_dict['name'])
                 if set_number is None:
                     raise IOError(f"ERROR (COVER): Set number returned empty!")
@@ -135,10 +134,6 @@ def process_cover_periodical(info_dict):
                 utility.copy_to_server(paths_list=renamed_paths, destination=os.path.join(config.COVER_DIR,datetime.now().strftime("%Y_%m_%d"+"_casopisy/")))
                 utility.set_status(doc_path=info_dict['path'], status='cover')
                 return 'finished'
-
-            except:
-                print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} ERROR (COVER): Error processing document {info_dict['name']}")
-                return 'error'
 
 
 def process_toc(info_dict):
