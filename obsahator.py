@@ -46,6 +46,10 @@ for doc_path in docs:
             print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (OBSAHATOR): Processing {doc_dict['name']} finished with {len(errors)} errors...")
             print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (OBSAHATOR): List of errors:")
             print(errors)
+            if not doc_dict['error']:
+                utility.rename_document(original_path=doc_dict['path'],
+                                new_name=config.FAIL_PREFIX+doc_dict['name'])
+
         except IOError as e:
             print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} ERROR (OBSAHATOR): Processing error in {doc_dict['name']} : {e}")
         print(">"*79)
@@ -59,6 +63,10 @@ for doc_path in docs:
             print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (OBSAHATOR): Processing {doc_dict['name']} finished with {len(errors)} errors...")
             print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (OBSAHATOR): List of errors:")
             print(errors)
+            if not doc_dict['error']:
+                utility.rename_document(original_path=doc_dict['path'],
+                                new_name=config.FAIL_PREFIX+doc_dict['name'])
+
         except IOError as e:
             print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} ERROR (OBSAHATOR): Processing error in {doc_dict['name']} : {e}")
         print(">"*79)
