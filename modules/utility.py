@@ -139,7 +139,7 @@ def check_isbn(string):
     
     if len(string) == 13:
         # the sum of all digits, each multiplied by its weight, alternating between 1 and 3, is a multiple of 10
-        w, p = 1, 0 # weight, product () #
+        w, p = 1, 0 # weight, product
         for char in string:
             if char is not "x":
                 p += int(char)*w

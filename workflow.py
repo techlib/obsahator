@@ -271,7 +271,7 @@ def process_doc_periodical(doc_info_dict):
         elif cover_status == 'finished':
             # if each process returns 'finished', rename the doc
             utility.rename_document(original_path=doc_info_dict['path'],
-                                    new_name=config.FINISHED_PREFIX+doc_info_dict['name'])
+                                    new_name='PERIODICAL_'+config.FINISHED_PREFIX+doc_info_dict['name'])
             status = 'finished'                                 # set processing status to 'finished' 
         
         else:
