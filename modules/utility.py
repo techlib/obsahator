@@ -206,20 +206,21 @@ def check_cnb(string):
         return True
 
 def determine_identifier(string):
-    """
-    Apply all above functions and return type of identifier.
+    repattern_cnb = r'^cnb[0-9]{9}'
+    repattern_sysno = r'^ABA013-[0-9]{9}'
+    repattern_isbn = r'(?:[0-9]-?){13}|(?:[0-9]-?){10}'
+    repattern_issn = r'(?:[0-9]-?){8}'
+    repattern_ocolc = r'\(OCoLC\)[0-9]+'
 
-    :param string: character string to check for identifiers
-    :return: String describing resolved identifier.
-    """
-
-    if check_isbn(string):
+    if re.match(repattern_isbn,string) and check_isbn(string):
         return 'isbn'
-    elif check_issn(string):
+    elif re.match(repattern_issn,string) and check_issn(string):
         return 'issn'
-    elif check_cnb(string):
-        return 'cnb'
-    elif check_sysno(string):
+    elif re.match(repattern_cnb, string):
+        return 'cnb '
+    elif re.match(repattern_sysno,string):
         return 'sysno'
+    elif re.match(repattern_ocolc,string):
+        return 'ocolc'
     else:
-        return 'fail'
+        return 'fail'   
