@@ -208,8 +208,8 @@ def check_cnb(string):
 def determine_identifier(string):
     repattern_cnb = r'^cnb[0-9]{9}'
     repattern_sysno = r'^ABA013-[0-9]{9}'
-    repattern_isbn = r'(?:[0-9]-?){13}|(?:[0-9]-?){10}'
-    repattern_issn = r'(?:[0-9]-?){8}'
+    repattern_isbn = r'(?:[0-9xX]-?){13}|(?:[0-9]-?){10}'
+    repattern_issn = r'(?:[0-9xX]-?){8}'
     repattern_ocolc = r'\(OCoLC\)[0-9]+'
 
     if re.match(repattern_isbn,string) and check_isbn(string):
@@ -217,7 +217,7 @@ def determine_identifier(string):
     elif re.match(repattern_issn,string) and check_issn(string):
         return 'issn'
     elif re.match(repattern_cnb, string):
-        return 'cnb '
+        return 'cnb'
     elif re.match(repattern_sysno,string):
         return 'sysno'
     elif re.match(repattern_ocolc,string):
