@@ -65,7 +65,7 @@ def process_cover_monograph(info_dict):
                     
                 converted_paths = conversion.convert_to_jpg(doc_content)
                 print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (COVER): {info_dict['name']}\tCONVERTED IMAGES: {converted_paths}")
-                
+
                 if len(converted_paths) > 1:
                     raise ValueError(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} ERROR (COVER): Document {info_dict['name']} has more than one cover page.")
                 for path in converted_paths:
@@ -115,7 +115,7 @@ def process_cover_periodical(info_dict):
                 # sysno = catalogue.get_document_sysno(set_number=set_number)
                 # print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (COVER): {info_dict['name']}\tSYSNO: {sysno}")
                 
-                sysno = doc_content['sysno']
+                sysno = info_dict['sysno']
 
                 converted_paths = conversion.convert_to_jpg(doc_content)
                 print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (COVER): {info_dict['name']}\tCONVERTED IMAGES: {converted_paths}")

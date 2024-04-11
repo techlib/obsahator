@@ -161,10 +161,10 @@ def check_isbn(string):
         # the sum of all digits, each multiplied by its weight, alternating between 1 and 3, is a multiple of 10
         w, p = 1, 0 # weight, product
         for char in string:
-            if char is not "x":
+            if char != "x":
                 p += int(char)*w
                 w = 4-w # subtraction from their total switches between 1 and 3        
-            elif char is "x":
+            elif char == "x":
                 p += 10*w
 
         return p % 10 == 0 # multiple of 10 --> valid isbn-13
@@ -185,10 +185,10 @@ def check_issn(string):
         # Sum of all ten digits, each multiplied by its weight in ascending order from 1 to 8, is a multiple of 11.
         w, p = 8, 0  # weight, product
         for char in string:
-            if char is not "x":
+            if char != "x":
                 p += int(char)*w
                 w -= 1
-            if char is "x":
+            if char == "x":
                 p += 10*w
                 w -= 1
 
