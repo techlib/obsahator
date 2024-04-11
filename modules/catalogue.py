@@ -10,7 +10,7 @@ import re
 from datetime import datetime
 
 
-def get_set_number(dir_name):
+def get_set_number(id_type,id_value):
     """
     Get's the set number of the document from Aleph library system based on the directory name which is equal to
     documents' isbn/issn number. Performs a search for a document record based on the identifier.
@@ -18,18 +18,18 @@ def get_set_number(dir_name):
     :return: set_number: string representing a set number of the search result
     """
     # separates date and identifier from the directory name
-    identifier = str(dir_name).split(sep="_")[1]
 
     # TODO add request forming for issn numbers
     # construct aleph query
-    if identifier.startswith("cnb"):
-        aleph_url = config.ALEPH_API + '/?op=find&request=cnb='+identifier+'&base=STK'
 
-    elif len(identifier) < 10:
-        aleph_url = config.ALEPH_API + '/?op=find&request=issn='+identifier+'&base=STK'
-    
-    else:
-        aleph_url = config.ALEPH_API + '/?op=find&request=isbn='+identifier+'&code=SBN&base=STK'
+    code = {
+        'issn' : 'SSN',
+        'isbn' : 'SBN',
+        'cnb'  : 'CNB'
+    }
+
+
+    aleph_url = config.ALEPH_API+f"?op=find&base=STK&code={code[id_type]}&request={id_value}"
 
     # get response
     aleph_response = requests.get(aleph_url)
@@ -51,7 +51,7 @@ def get_set_number(dir_name):
     # check number of found documents
     for aleph_result in aleph_result_generator:     
         if re.match('[0]{9}', aleph_result):
-            raise IOError(f"ERROR (CATALOGUE): No document found for identifier {identifier}...")
+            raise IOError(f"ERROR (CATALOGUE): No document found for identifier {id_value}...")
         # if there are some documents found, get the set number from the response
         if re.match('[0]{8}[1]{1}', aleph_result):
             print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (CATALOGUE): Found one result for the Aleph query.")
@@ -98,5 +98,27 @@ def get_document_sysno(set_number):
         return doc_number
 
 
+def catalog_lookup_sysno(id_type,id_value):
+    set_no = get_set_number(id_type,id_value)
+    sysno = get_document_sysno(set_no)
+    return sysno
 
+
+def lookup_ocolc(id_value):
+    escaped = re.escape(id_value)
+    ocolc_marc_regex = r"([0-9]{9}).*\$\$a"+escaped+r"(?:\$\$.*)?$"
+    with open('data/aleph_all_035','rt') as ocolcs:
+        while not ((line := ocolcs.readline()) == '' or (res := re.match(ocolc_marc_regex, line))): pass
+    
+    return res.group(1) if res else None
+
+    
+
+def resolve_id_to_sysno(id_type,id_value):
+    if id_type in ['issn','isbn','cnb']:
+        return catalog_lookup_sysno(id_type,id_value)
+    elif id_type in ['ocolc']:
+        return lookup_ocolc(id_value)
+    elif id_type in ['sysno']:
+        return id_value
 

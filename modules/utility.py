@@ -85,6 +85,26 @@ def copy_to_server(paths_list, destination):
             # print("Copying file " + os.path.basename(path) + ": " + e)
             raise IOError(f'{format(datetime.now(), "%Y-%m-%d %H:%M:%S")} ERROR(UTILITY) Cannot copy file {path} to {os.path.join(destination, os.path.basename(path))} : {e}')
 
+def set_fail(doc_path, errors = None):
+    """
+    Designates the document as failed by adding a prefix to the directorz name, adds a hidden file with list of errors
+    :param doc_path: path to the document directory
+    :param errors: list of errors leading to the fail
+    """
+
+    print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO(UTILITY): DOC_PATH {doc_path}")
+    filepath = os.path.join(doc_path, config.STATUS_FAIL)
+    try:
+        f = open(filepath, mode='w')
+        f.write('errors: '+ str(errors))
+        f.close()
+    except:
+        raise IOError(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} ERROR (UTILITY): Failed to write the status file into {doc_path}")
+    new_name = config.FAIL_PREFIX + os.path.basename(doc_path)
+    rename_document(doc_path, new_name)
+
+
+
 
 def set_status(doc_path, status):
     """
@@ -207,20 +227,20 @@ def check_cnb(string):
 
 def determine_identifier(string):
     repattern_cnb = r'^cnb[0-9]{9}'
-    repattern_sysno = r'^ABA013-[0-9]{9}'
+    repattern_sysno = r'^ABA013-([0-9]{9})'
     repattern_isbn = r'(?:[0-9xX]-?){13}|(?:[0-9]-?){10}'
     repattern_issn = r'(?:[0-9xX]-?){8}'
     repattern_ocolc = r'\(OCoLC\)[0-9]+'
 
     if re.match(repattern_isbn,string) and check_isbn(string):
-        return 'isbn'
+        return 'isbn', string
     elif re.match(repattern_issn,string) and check_issn(string):
-        return 'issn'
+        return 'issn', string
     elif re.match(repattern_cnb, string):
-        return 'cnb'
+        return 'cnb', string
     elif re.match(repattern_sysno,string):
-        return 'sysno'
+        return 'sysno', string[7:]
     elif re.match(repattern_ocolc,string):
-        return 'ocolc'
+        return 'ocolc', string
     else:
-        return 'fail'   
+        return 'fail', None

@@ -13,6 +13,7 @@ import os
 import re
 from datetime import datetime
 from modules import utility
+from modules import catalogue
 
 batch_dict = {}
 
@@ -37,7 +38,27 @@ for doc_path in docs:
                                 #doc_path, f)) and re.match(r'\d{1,3}', f)]  ^(?!toc-|.cover|.ocr)
                      })
 
-    if utility.determine_identifier(doc_dict['id']) in ['isbn', 'cnb', 'sysno']:
+    id_type, id_value = utility.determine_identifier(doc_dict['id'])
+    
+    if id_type == 'fail':
+        print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} ERROR unable to determine identifier for: {doc_dict['name']}")
+        utility.set_fail(doc_path, [f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} ERROR unable to determine identifier for: {doc_dict['name']}"])
+        continue
+
+    doc_dict.update({'id_type' : id_type,
+                     'id_value' : id_value
+                    })
+    
+    sysno = catalogue.resolve_id_to_sysno(id_type,id_value)
+    if sysno == None:
+        print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} ERROR unable to determine sysno for: {doc_dict['name']}")
+        utility.set_fail(doc_path, [f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} ERROR unable to determine sysno for: {doc_dict['name']}"])
+        continue
+
+    doc_dict['sysno'] = sysno
+
+
+    if doc_dict['id_type'] in ['isbn', 'cnb', 'sysno','ocolc']:
         try:
             status, errors = workflow.process_doc_monograph(doc_dict)
             doc_dict['status'] = status
@@ -51,7 +72,7 @@ for doc_path in docs:
             print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} ERROR (OBSAHATOR): Processing error in {doc_dict['name']} : {e}")
         print(">"*79)
     
-    elif utility.determine_identifier(doc_dict['id']) in ['issn']:
+    elif doc_dict['id_type'] in ['issn']:
         try:
             status, errors = workflow.process_doc_periodical(doc_dict)
             doc_dict['status'] = status
@@ -64,7 +85,6 @@ for doc_path in docs:
         except IOError as e:
             print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} ERROR (OBSAHATOR): Processing error in {doc_dict['name']} : {e}")
         print(">"*79)
-        
     
     else:
         print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} ERROR unable to determine identifier for: {doc_dict['name']}")
