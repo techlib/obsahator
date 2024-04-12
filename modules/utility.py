@@ -147,10 +147,10 @@ def check_isbn(string):
         # sum of all ten digits, each multiplied by its weight in ascending order from 1 to 10, is a multiple of 11.    
         w, p = 10, 0 # weight, product
         for char in string:
-            if char is not "x":
+            if char != "x":
                 p += int(char)*w
                 w -= 1
-            elif char is "x":
+            elif char == "x":
                 p += 10*w
                 w -= 1
 
