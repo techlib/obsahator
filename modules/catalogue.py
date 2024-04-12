@@ -108,7 +108,12 @@ def lookup_ocolc(id_value):
     escaped = re.escape(id_value)
     ocolc_marc_regex = r"([0-9]{9}).*\$\$a"+escaped+r"(?:\$\$.*)?$"
     with open(config.ALEPH_035a_LIST_PATH,'rt') as ocolcs:
-        while not ((line := ocolcs.readline()) == '' or (res := re.match(ocolc_marc_regex, line))): pass
+        line = ocolcs.readline()
+        res = re.match(ocolc_marc_regex, line)
+        while not line == '' or res:
+            line = ocolcs.readline()
+            res = re.match(ocolc_marc_regex, line)
+            
     
     return res.group(1) if res else None
 
