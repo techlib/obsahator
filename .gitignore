@@ -110,4 +110,5 @@ venv.bak/
 __pycache__/
 config.py
 test_*
+data/
 .pyc
