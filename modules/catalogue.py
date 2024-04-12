@@ -110,7 +110,7 @@ def lookup_ocolc(id_value):
     with open(config.ALEPH_035a_LIST_PATH,'rt') as ocolcs:
         line = ocolcs.readline()
         res = re.match(ocolc_marc_regex, line)
-        while not line == '' or res:
+        while not (line == '' or res):
             line = ocolcs.readline()
             res = re.match(ocolc_marc_regex, line)
             
