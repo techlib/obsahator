@@ -78,7 +78,7 @@ def copy_to_server(paths_list, destination):
             print("{0:%Y-%m-%d %H:%M:%S}".format(datetime.now()) + " " +
                   "INFO (UTILITY): Copying file {} to {}".format(path, destination))
             # copy file to it's destination
-            os.system('cp ' + path + ' ' + destination) # this is working WHAT EVEN IS THAT?
+            # os.system('cp ' + path + ' ' + destination) # this is working WHAT EVEN IS THAT?
             shutil.copy2(path, destination)
             print("Copying: " + path + " to destination: " + destination)    
         except shutil.Error as e:
