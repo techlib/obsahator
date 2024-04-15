@@ -40,31 +40,32 @@ def process_cover_monograph(info_dict):
         # process covers
         renamed_paths = []
         if doc_info == 'cover':
-                sysno = None
-                # attempt to find system number
-                if info_dict['id'].startswith("ABA013-"):
-                    sysno = info_dict['id'][7:]
-                    print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (COVER): {info_dict['name']}\tSYSNO: {sysno}")
-                    converted_paths = conversion.convert_to_jpg(doc_content)
-                    print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (COVER): {info_dict['name']}\tCONVERTED IMAGES: {converted_paths}")
+                sysno = info_dict.get('sysno')
+                # # attempt to find system number
+                # if info_dict['id'].startswith("ABA013-"):
+                #     sysno = info_dict['id'][7:]
+                #     print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (COVER): {info_dict['name']}\tSYSNO: {sysno}")
+                #     converted_paths = conversion.convert_to_jpg(doc_content)
+                #     print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (COVER): {info_dict['name']}\tCONVERTED IMAGES: {converted_paths}")
 
-                else:
-                    set_number = catalogue.get_set_number(info_dict['name'])
+                # else:
+                #     set_number = catalogue.get_set_number(info_dict['name'])
 
-                    if set_number is None:
-                        raise IOError(f"ERROR (COVER): Set number returned empty!")
+                #     if set_number is None:
+                #         raise IOError(f"ERROR (COVER): Set number returned empty!")
                     
-                    print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (COVER): {info_dict['name']}\tSET NUMBER: {set_number}")
+                #     print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (COVER): {info_dict['name']}\tSET NUMBER: {set_number}")
                     
-                    sysno = catalogue.get_document_sysno(set_number=set_number)
-                    print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (COVER): {info_dict['name']}\tSYSNO: {sysno}")
+                #     sysno = catalogue.get_document_sysno(set_number=set_number)
+                #     print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (COVER): {info_dict['name']}\tSYSNO: {sysno}")
                     
-                    converted_paths = conversion.convert_to_jpg(doc_content)
-                    print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (COVER): {info_dict['name']}\tCONVERTED IMAGES: {converted_paths}")
                 
                 if sysno is None:
                     raise ValueError(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} ERROR (COVER): Document {info_dict['name']} has no sysno!")
                     
+                converted_paths = conversion.convert_to_jpg(doc_content)
+                print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (COVER): {info_dict['name']}\tCONVERTED IMAGES: {converted_paths}")
+
                 if len(converted_paths) > 1:
                     raise ValueError(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} ERROR (COVER): Document {info_dict['name']} has more than one cover page.")
                 for path in converted_paths:
@@ -104,16 +105,18 @@ def process_cover_periodical(info_dict):
         # process covers
         renamed_paths = []
         if doc_info == 'cover':
-                set_number = catalogue.get_set_number(info_dict['name'])
-                if set_number is None:
-                    raise IOError(f"ERROR (COVER): Set number returned empty!")
+                # set_number = catalogue.get_set_number(info_dict['name'])
+                # if set_number is None:
+                #     raise IOError(f"ERROR (COVER): Set number returned empty!")
                 
-                print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (COVER): {info_dict['name']}\tSET NUMBER: {set_number}")
+                # print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (COVER): {info_dict['name']}\tSET NUMBER: {set_number}")
 
                 
-                sysno = catalogue.get_document_sysno(set_number=set_number)
-                print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (COVER): {info_dict['name']}\tSYSNO: {sysno}")
+                # sysno = catalogue.get_document_sysno(set_number=set_number)
+                # print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (COVER): {info_dict['name']}\tSYSNO: {sysno}")
                 
+                sysno = info_dict['sysno']
+
                 converted_paths = conversion.convert_to_jpg(doc_content)
                 print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO (COVER): {info_dict['name']}\tCONVERTED IMAGES: {converted_paths}")
                 
