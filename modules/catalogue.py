@@ -45,6 +45,11 @@ def get_set_number(id_type,id_value):
     # parse aleph response text to a dictionary
     result_set_dict = xmltodict.parse(aleph_response.text)
 
+    # check whether there were errors in the alpeh response
+    aleph_errors = list(utility.find_item_in_response(result_set_dict, key='error'))
+    if len(aleph_errors) > 0:
+        raise IOError(f"ERROR (CATALOGUE): Aleph returns error for identifier {id_value}...")
+
     # find number of records in the response
     aleph_result_generator = utility.find_item_in_response(result_set_dict, key='no_records')
 

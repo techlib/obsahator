@@ -51,7 +51,13 @@ for doc_path in docs:
                      'id_value' : id_value
                     })
     
-    sysno = catalogue.resolve_id_to_sysno(id_type,id_value)
+    try:
+        sysno = catalogue.resolve_id_to_sysno(id_type,id_value)
+    except IOError as e:
+        utility.set_fail(doc_path,[e])
+        continue
+    
+    
     if sysno == None:
         print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} ERROR unable to determine sysno for: {doc_dict['name']}")
         utility.set_fail(doc_path, [f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} ERROR unable to determine sysno for: {doc_dict['name']}"])
