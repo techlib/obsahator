@@ -38,8 +38,10 @@ for doc_path in docs:
                                 #doc_path, f)) and re.match(r'\d{1,3}', f)]  ^(?!toc-|.cover|.ocr)
                      })
 
+    print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} INFO starting work on th folder: {doc_dict['name']}")
+
     id_type, id_value = utility.determine_identifier(doc_dict['id'])
-    
+
     if id_type == 'fail':
         print(f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} ERROR unable to determine identifier for: {doc_dict['name']}")
         utility.set_fail(doc_path, [f"{format(datetime.now(), '%Y-%m-%d %H:%M:%S')} ERROR unable to determine identifier for: {doc_dict['name']}"])
